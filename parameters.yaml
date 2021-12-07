@@ -1,0 +1,58 @@
+agent:
+  mlp:
+    architecture: [48, 16]
+
+    lr_actor: 0.0003                  # learning rate for actor network
+    lr_critic: 0.0015                  # learning rate for critic network
+
+model:
+  env_name: "pivoting-v0"
+#  ppo_acting_joints: [5, 6, 7]
+  ppo_acting_joints: [5, 7]
+  control_method: 3                 #3: PPO+CONTROL on chosen joits, 4: PPO ONLY on chosen joints
+
+  max_ep_len: 2500                   # max timesteps in one episode
+  number_of_episodes: 15000             # break training loop if timeteps > max_training_timesteps
+
+
+  failure_rate: 0.02 # Only considered when occlusion is active
+  acceptable_error_percentage: 0.10  # acceptable percentage of error to consider a sucess angle
+  max_acceptable_error: 1            # maximum acceptable error(in degrees) to consider a sucess angle
+
+  reward:
+    of_sucess: 100
+    steps_to_converge: 500           # steps the agent needs to remain inside the success zone to consider a successful task
+
+logs:
+  log_freq: 1000                      # log avg reward in the interval (in num timesteps)
+  save_model_freq: 100000             # save model frequency (in num timesteps)
+
+ppo:
+  hyperparameters:
+    update_timestep_coef: 4           # update_timestep = max_timesteps * update_timestep_coef
+    k_epochs: 80                      # update policy for K epochs in one PPO update
+    eps_clip: 0.2                     # clip parameter for PPO
+    gamma: 0.99                       # discount factor
+    random_seed: 42                   # set random seed if required (0 = no random seed)
+
+  action_parameters:
+    action_std: 0.6 #0.8                    # starting std for action distribution (Multivariate Normal)
+    action_std_decay_rate: 0.05        # linearly decay action_std (action_std = action_std - action_std_decay_rate)
+    min_action_std: 0.1 #revisar esse valor               # minimum action_std (stop decay after action_std <= min_action_std)
+    action_std_decay_freq: 20          # action_std decay frequency (in episodes)
+
+train:
+  render: 0
+  render_each_n_episodes: 1
+  model_name: 'pivoting_10_15'
+
+test:
+  render: 1
+  number_of_test_episodes: 1200
+  log_results: True
+  model_name: 'pivoting_20_25'
+  progressive: False
+
+# Used in test
+data_imputer:
+  activate_occlusion: False
